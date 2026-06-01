@@ -2,24 +2,22 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Support\Facades\DB;
+use App\Models\Employee;
+use App\Models\Payroll;
+use App\Models\Attendance;
 
 class ReportController extends Controller
 {
     public function index()
     {
-        // EMPLOYEES
-        $totalEmployees = DB::table('employees')->count();
+        $totalEmployees = Employee::count();
+        $totalPayroll = Payroll::sum('gross_pay');
+        $totalNetPay = Payroll::sum('net_pay');
+        $totalDeductions = Payroll::sum('total_deductions');
 
-        // PAYROLL TOTALS
-        $totalPayroll = DB::table('payroll')->sum('gross_pay');
-        $totalNetPay = DB::table('payroll')->sum('net_pay');
-        $totalDeductions = DB::table('payroll')->sum('total_deductions');
-
-        // ATTENDANCE SUMMARY
-        $present = DB::table('attendance')->where('status', 'present')->count();
-        $late = DB::table('attendance')->where('status', 'late')->count();
-        $absent = DB::table('attendance')->where('status', 'absent')->count();
+        $present = Attendance::where('status', 'present')->count();
+        $late = Attendance::where('status', 'late')->count();
+        $absent = Attendance::where('status', 'absent')->count();
 
         return view('admin.reports.index', compact(
             'totalEmployees',

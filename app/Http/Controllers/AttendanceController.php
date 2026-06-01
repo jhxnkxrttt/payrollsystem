@@ -3,53 +3,37 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
+use App\Models\Employee;
+use App\Models\Attendance;
 
 class AttendanceController extends Controller
 {
-    // SHOW ATTENDANCE PAGE
     public function index()
     {
-        $employees = DB::table('employees')->get();
+        $employees = Employee::all();
+        $attendance = Attendance::with('employee')->orderBy('date', 'desc')->get();
 
-        $attendance = DB::table('attendance')
-
-            ->join('employees', 'attendance.employee_id', '=', 'employees.id')
-
-            ->select(
-                'attendance.*',
-                'employees.name',
-                'employees.position'
-            )
-
-            ->orderBy('date', 'desc')
-
-            ->get();
-
-        return view('admin.attendance.index', compact(
-            'employees',
-            'attendance'
-        ));
+        return view('admin.attendance.index', compact('employees', 'attendance'));
     }
 
-    // SAVE ATTENDANCE
     public function store(Request $request)
     {
-        DB::table('attendance')->insert([
-
-            'employee_id' => $request->employee_id,
-
-            'date' => $request->date,
-
-            'time_in' => $request->time_in,
-
-            'time_out' => $request->time_out,
-
-            'status' => $request->status,
-
-            'created_at' => now()
+        $request->validate([
+            'employee_id' => 'required|exists:employees,id',
+            'date' => 'required|date',
+            'time_in' => 'nullable|date_format:H:i:s',
+            'time_out' => 'nullable|date_format:H:i:s',
+            'status' => 'required|in:present,absent,late',
         ]);
 
-        return back()->with('success', 'Attendance added!');
+        Attendance::create([
+            'employee_id' => $request->employee_id,
+            'date' => $request->date,
+            'time_in' => $request->time_in,
+            'time_out' => $request->time_out,
+            'status' => $request->status,
+        ]);
+
+        return back()->with('success', 'Attendance added successfully!');
     }
 }

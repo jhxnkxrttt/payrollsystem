@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Session;
+use App\Models\User;
+use App\Models\Employee;
+use App\Models\Payroll;
+use App\Models\Attendance;
 
 class DashboardController extends Controller
 {
@@ -15,32 +17,17 @@ class DashboardController extends Controller
             return redirect('/');
         }
 
-        $user = DB::table('users')
-            ->where('id', $userId)
-            ->first();
-
-        if (!$user) {
-            return redirect('/');
-        }
-
-        // CRITICAL FIX HERE
-        $employee = DB::table('employees')
-            ->where('id', $user->employee_id)
-            ->first();
-
-        // DEBUG (optional)
-        // dd($user, $employee);
+        $user = User::findOrFail($userId);
+        $employee = $user->employee;
 
         return view('employee.dashboard', compact('employee'));
     }
 
     public function admin()
     {
-        $totalEmployees = DB::table('employees')->count();
-
-        $totalPayroll = DB::table('payroll')->sum('net_pay');
-
-        $latestPayroll = DB::table('payroll')
+        $totalEmployees = Employee::count();
+        $totalPayroll = Payroll::sum('net_pay');
+        $latestPayroll = Payroll::with('employee')
             ->orderBy('generated_at', 'desc')
             ->limit(5)
             ->get();
@@ -60,70 +47,60 @@ class DashboardController extends Controller
             return redirect('/');
         }
 
-        $user = DB::table('users')
-            ->where('id', $userId)
-            ->first();
-
-        $employee = DB::table('employees')
-            ->where('id', $user->employee_id)
-            ->first();
+        $user = User::findOrFail($userId);
+        $employee = $user->employee;
 
         return view('employee.profile', compact('user', 'employee'));
     }
+
     public function payslips()
     {
         $userId = session('user_id');
+        $user = User::findOrFail($userId);
 
-        $user = DB::table('users')->where('id', $userId)->first();
-
-        $payslips = DB::table('payroll')
-            ->where('employee_id', $user->employee_id)
+        $payslips = Payroll::where('employee_id', $user->employee_id)
             ->orderBy('generated_at', 'desc')
             ->get();
 
         return view('employee.payslips', compact('payslips'));
     }
+
     public function attendance()
     {
         $userId = session('user_id');
+        $user = User::findOrFail($userId);
 
-        $user = DB::table('users')->where('id', $userId)->first();
-
-        $logs = DB::table('attendance')
-            ->where('employee_id', $user->employee_id)
+        $logs = Attendance::where('employee_id', $user->employee_id)
             ->orderBy('date', 'desc')
             ->get();
 
         return view('employee.attendance', compact('logs'));
     }
+
     public function timeIn()
     {
-        $user = session('user_id');
-        $emp = DB::table('users')->where('id', $user)->first();
+        $userId = session('user_id');
+        $user = User::findOrFail($userId);
 
-        DB::table('attendance')->insert([
-            'employee_id' => $emp->employee_id,
-            'date' => date('Y-m-d'),
+        Attendance::create([
+            'employee_id' => $user->employee_id,
+            'date' => now()->toDateString(),
             'time_in' => now(),
-            'status' => 'present'
+            'status' => 'present',
         ]);
 
-        return back();
+        return back()->with('success', 'Time in recorded successfully!');
     }
 
     public function timeOut()
     {
-        $user = session('user_id');
-        $emp = DB::table('users')->where('id', $user)->first();
+        $userId = session('user_id');
+        $user = User::findOrFail($userId);
 
-        DB::table('attendance')
-            ->where('employee_id', $emp->employee_id)
-            ->where('date', date('Y-m-d'))
-            ->update([
-                'time_out' => now()
-            ]);
+        Attendance::where('employee_id', $user->employee_id)
+            ->where('date', now()->toDateString())
+            ->update(['time_out' => now()]);
 
-        return back();
+        return back()->with('success', 'Time out recorded successfully!');
     }
-
 }

@@ -3,62 +3,46 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
+use App\Models\Employee;
+use App\Models\Deduction;
 
 class DeductionController extends Controller
 {
-    // SHOW PAGE
     public function index()
     {
-        $employees = DB::table('employees')->get();
-
-        $deductions = DB::table('deductions')
-            ->join('employees', 'deductions.employee_id', '=', 'employees.id')
-            ->select('deductions.*', 'employees.name')
-            ->orderBy('deductions.created_at', 'desc')
-            ->get();
+        $employees = Employee::all();
+        $deductions = Deduction::with('employee')->orderBy('created_at', 'desc')->get();
 
         return view('admin.deductions.index', compact('employees', 'deductions'));
     }
 
-    // SAVE DEDUCTION
     public function store(Request $request)
-{
-    $employee = DB::table('employees')
-        ->where('id', $request->employee_id)
-        ->first();
+    {
+        $request->validate([
+            'employee_id' => 'required|exists:employees,id',
+            'type' => 'required|in:SSS,PhilHealth,Pag-IBIG,Late,Absent,Other',
+            'description' => 'nullable|string|max:255',
+            'amount' => 'nullable|numeric|min:0',
+        ]);
 
-    $amount = $request->amount;
+        $employee = Employee::findOrFail($request->employee_id);
+        $amount = $request->amount ?? 0;
 
-    // AUTO COMPUTATION
-    if ($request->type == 'SSS') {
-        $amount = $employee->monthly_salary * 0.045;
+        match ($request->type) {
+            'SSS' => $amount = $employee->monthly_salary * 0.045,
+            'PhilHealth' => $amount = $employee->monthly_salary * 0.025,
+            'Pag-IBIG' => $amount = 200,
+            'Late' => $amount = 200,
+            default => $amount = $request->amount,
+        };
+
+        Deduction::create([
+            'employee_id' => $request->employee_id,
+            'type' => $request->type,
+            'amount' => $amount,
+            'description' => $request->description,
+        ]);
+
+        return back()->with('success', 'Deduction saved successfully!');
     }
-
-    if ($request->type == 'PhilHealth') {
-        $amount = $employee->monthly_salary * 0.025;
-    }
-
-    if ($request->type == 'Pag-IBIG') {
-        $amount = 200;
-    }
-
-    if ($request->type == 'Late') {
-        $amount = 200; 
-    }
-
-    if ($request->type == 'Other') {
-        $amount = $request->amount;
-    }
-
-    DB::table('deductions')->insert([
-        'employee_id' => $request->employee_id,
-        'type' => $request->type,
-        'amount' => $amount,
-        'description' => $request->description,
-        'created_at' => now()
-    ]);
-
-    return back()->with('success', 'Deduction saved successfully!');
-}
 }

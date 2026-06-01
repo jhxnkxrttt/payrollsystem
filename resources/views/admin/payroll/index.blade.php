@@ -5,14 +5,12 @@
 </head>
 <body>
 
-<h1>Generate Payroll</h1>
+<h1>Generate Payroll (Auto 15-Day System)</h1>
 
 @if(session('success'))
-
     <p style="color:green;">
         {{ session('success') }}
     </p>
-
 @endif
 
 <table border="1" cellpadding="10">
@@ -20,62 +18,32 @@
     <tr>
         <th>Name</th>
         <th>Position</th>
-        <th>Salary</th>
-        <th>Action</th>
+        <th>Monthly Salary</th>
     </tr>
 
     @foreach($employees as $emp)
-
     <tr>
-
         <td>{{ $emp->name }}</td>
-
         <td>{{ $emp->position }}</td>
-
         <td>₱{{ $emp->monthly_salary }}</td>
-
-        <td>
-
-            <form method="POST"
-                  action="/admin/payroll/generate/{{ $emp->id }}">
-
-                @csrf
-
-                <input type="date"
-                       name="cut_off_start"
-                       required>
-
-                <br><br>
-
-                <input type="date"
-                       name="cut_off_end"
-                       required>
-
-                <br><br>
-
-                <button type="submit">
-
-                    Generate Payroll
-
-                </button>
-
-            </form>
-
-        </td>
-
     </tr>
-
     @endforeach
 
 </table>
 
 <br>
 
-<a href="/admin/dashboard">
+<form method="POST" action="/admin/payroll/generate-all">
+    @csrf
 
-    Back
+    <button type="submit" style="padding:10px 20px;">
+        Generate Payroll (Auto 15-day Cutoff)
+    </button>
+</form>
 
-</a>
+<br>
+
+<a href="/admin/dashboard">Back</a>
 
 </body>
 </html>

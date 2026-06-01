@@ -3,79 +3,107 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
+use App\Models\Employee;
+use App\Models\Payroll;
+use App\Models\Attendance;
+use App\Models\Deduction;
 
 class PayrollController extends Controller
 {
-    // SHOW EMPLOYEES
     public function index()
     {
-        $employees = DB::table('employees')->get();
-
+        $employees = Employee::all();
         return view('admin.payroll.index', compact('employees'));
     }
 
     public function generate(Request $request, $id)
-{
-    $employee = DB::table('employees')
-        ->where('id', $id)
-        ->first();
+    {
+        $request->validate([
+            'cut_off_start' => 'required|date',
+            'cut_off_end' => 'required|date|after_or_equal:cut_off_start',
+        ]);
 
-    if (!$employee) {
-        return back()->with('error', 'Employee not found');
+        $employee = Employee::findOrFail($id);
+        $start = $request->cut_off_start;
+        $end = $request->cut_off_end;
+
+        // Calculate payroll
+        $payrollData = $this->calculatePayroll($employee, $start, $end);
+
+        Payroll::create($payrollData);
+
+        return back()->with('success', 'Payroll generated successfully!');
     }
 
-    $start = $request->cut_off_start;
-    $end = $request->cut_off_end;
+    public function generateAllAuto()
+    {
+        $now = now();
+        $today = $now->day;
 
-    // DAILY RATE (15 days cutoff)
-    $dailyRate = $employee->monthly_salary / 15;
+        if (!($today === 15 || $today === $now->copy()->endOfMonth()->day)) {
+            return back()->with('error', 'Not payroll cutoff day.');
+        }
 
-    // GET ATTENDANCE
-    $attendance = DB::table('attendance')
-        ->where('employee_id', $id)
-        ->whereBetween('date', [$start, $end])
-        ->get();
+        if ($today === 15) {
+            $start = $now->copy()->startOfMonth()->toDateString();
+            $end = $now->copy()->setDay(15)->toDateString();
+        } else {
+            $start = $now->copy()->setDay(16)->toDateString();
+            $end = $now->copy()->endOfMonth()->toDateString();
+        }
 
-    $presentDays = 0;
-    $lateDays = 0;
-    $absentDays = 0;
+        $employees = Employee::where('status', 'active')->get();
+        $count = 0;
 
-    foreach ($attendance as $a) {
-        if ($a->status == 'present') $presentDays++;
-        if ($a->status == 'late') $lateDays++;
-        if ($a->status == 'absent') $absentDays++;
+        foreach ($employees as $employee) {
+            $payrollData = $this->calculatePayroll($employee, $start, $end);
+            Payroll::create($payrollData);
+            $count++;
+        }
+
+        return back()->with('success', "Auto payroll generated for $count employees!");
     }
 
-    // COMPUTATION
-    $grossPay = $dailyRate * ($presentDays + $lateDays);
+    public function history()
+    {
+        $payrolls = Payroll::with('employee')
+            ->orderBy('generated_at', 'desc')
+            ->get();
 
-    $lateDeduction = $lateDays * ($dailyRate * 0.2);
-    $absentDeduction = $absentDays * $dailyRate;
+        return view('admin.payroll.history', compact('payrolls'));
+    }
 
-    // MANUAL DEDUCTIONS (SSS, etc.)
-    $manualDeduction = DB::table('deductions')
-        ->where('employee_id', $id)
-        ->sum('amount');
+    private function calculatePayroll(Employee $employee, $start, $end)
+    {
+        $dailyRate = $employee->monthly_salary / 15;
 
-    // TOTAL DEDUCTION
-    $totalDeduction = $lateDeduction + $absentDeduction + $manualDeduction;
+        $attendance = Attendance::where('employee_id', $employee->id)
+            ->whereBetween('date', [$start, $end])
+            ->get();
 
-    // NET PAY
-    $netPay = $grossPay - $totalDeduction;
+        $presentDays = $attendance->where('status', 'present')->count();
+        $lateDays = $attendance->where('status', 'late')->count();
+        $absentDays = $attendance->where('status', 'absent')->count();
 
-    // SAVE PAYROLL
-    DB::table('payroll')->insert([
-        'employee_id' => $id,
-        'cut_off_start' => $start,
-        'cut_off_end' => $end,
-        'total_days' => 15,
-        'gross_pay' => $grossPay,
-        'total_deductions' => $totalDeduction,
-        'net_pay' => $netPay,
-        'generated_at' => now()
-    ]);
+        $workedDays = $presentDays + $lateDays;
+        $grossPay = $workedDays * $dailyRate;
+        $lateDeduction = $lateDays * ($dailyRate * 0.2);
+        $absentDeduction = $absentDays * $dailyRate;
 
-    return back()->with('success', 'Payroll generated successfully!');
-}
+        $manualDeduction = Deduction::where('employee_id', $employee->id)->sum('amount');
+
+        $totalDeduction = $lateDeduction + $absentDeduction + $manualDeduction;
+        $netPay = max(0, $grossPay - $totalDeduction);
+
+        return [
+            'employee_id' => $employee->id,
+            'cut_off_start' => $start,
+            'cut_off_end' => $end,
+            'total_days' => 15,
+            'gross_pay' => $grossPay,
+            'total_deductions' => $totalDeduction,
+            'net_pay' => $netPay,
+            'generated_at' => now(),
+        ];
+    }
 }
