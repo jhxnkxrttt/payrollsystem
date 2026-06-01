@@ -1,31 +1,48 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Employee Profile</title>
-</head>
-<body>
+@extends('layouts.app')
 
-<h1>👤 Employee Profile</h1>
+@section('title', 'Profile - Cafe Payroll')
+@section('page-title', 'Employee Profile')
 
-<hr>
+@section('content')
+    <div class="info-grid">
+        <section class="panel">
+            <div class="section-header">
+                <h2>Personal Info</h2>
+            </div>
+            <dl class="detail-list">
+                <div>
+                    <dt>Name</dt>
+                    <dd>{{ $employee->name ?? 'N/A' }}</dd>
+                </div>
+                <div>
+                    <dt>Position</dt>
+                    <dd>{{ $employee->position ?? 'N/A' }}</dd>
+                </div>
+                <div>
+                    <dt>Salary</dt>
+                    <dd>PHP {{ number_format($employee->monthly_salary ?? 0, 2) }}</dd>
+                </div>
+                <div>
+                    <dt>Status</dt>
+                    <dd><span class="badge badge-success">{{ $employee->status ?? 'N/A' }}</span></dd>
+                </div>
+            </dl>
+        </section>
 
-<h2>Personal Info</h2>
-
-<p><strong>Name:</strong> {{ $employee->name ?? 'N/A' }}</p>
-<p><strong>Position:</strong> {{ $employee->position ?? 'N/A' }}</p>
-<p><strong>Salary:</strong> ₱{{ $employee->monthly_salary ?? '0' }}</p>
-<p><strong>Status:</strong> {{ $employee->status ?? 'N/A' }}</p>
-
-<hr>
-
-<h2>Account Info</h2>
-
-<p><strong>Email:</strong> {{ $user->email ?? 'N/A' }}</p>
-<p><strong>Role:</strong> {{ $user->role ?? 'N/A' }}</p>
-
-<hr>
-
-<a href="/employee/dashboard">⬅ Back to Dashboard</a>
-
-</body>
-</html>
+        <section class="panel">
+            <div class="section-header">
+                <h2>Account Info</h2>
+            </div>
+            <dl class="detail-list">
+                <div>
+                    <dt>Email</dt>
+                    <dd>{{ $user->email ?? 'N/A' }}</dd>
+                </div>
+                <div>
+                    <dt>Role</dt>
+                    <dd>{{ $user->role ?? 'N/A' }}</dd>
+                </div>
+            </dl>
+        </section>
+    </div>
+@endsection

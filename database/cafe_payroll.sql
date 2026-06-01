@@ -96,10 +96,16 @@ INSERT INTO `employees` (`id`, `name`, `position`, `monthly_salary`, `hire_date`
 CREATE TABLE `payroll` (
   `id` int(11) NOT NULL,
   `employee_id` int(11) NOT NULL,
-  `cut_off_start` date NOT NULL,
-  `cut_off_end` date NOT NULL,
+  `paid_date` date DEFAULT NULL,
+  `cut_off_start` date DEFAULT NULL,
+  `cut_off_end` date DEFAULT NULL,
+  `present_days` tinyint(3) UNSIGNED DEFAULT 0,
+  `absent_days` tinyint(3) UNSIGNED DEFAULT 0,
+  `late_days` tinyint(3) UNSIGNED DEFAULT 0,
   `total_days` int(11) DEFAULT 0,
   `gross_pay` decimal(10,2) DEFAULT 0.00,
+  `late_deduction` decimal(10,2) DEFAULT 0.00,
+  `selected_deductions` text DEFAULT NULL,
   `total_deductions` decimal(10,2) DEFAULT 0.00,
   `net_pay` decimal(10,2) DEFAULT 0.00,
   `generated_at` timestamp NOT NULL DEFAULT current_timestamp()
@@ -125,20 +131,20 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `employee_id`, `email`, `password`, `role`, `created_at`) VALUES
-(1, NULL, 'admin@cafe.com', 'admin123', 'admin', '2026-05-27 05:33:39'),
-(2, 1, 'miguel.santos@cafe.com', 'password123', 'Manager', '2026-05-27 05:33:39'),
-(3, 2, 'carla.reyes@cafe.com', 'password123', 'Assistant Manager', '2026-05-27 05:33:39'),
-(4, 3, 'ramon.delacruz@cafe.com', 'password123', 'Head Chef', '2026-05-27 05:33:39'),
-(5, 4, 'paolo.navarro@cafe.com', 'password123', 'Assistant Chef', '2026-05-27 05:33:39'),
-(6, 5, 'andrea.lim@cafe.com', 'password123', 'Head Barista', '2026-05-27 05:33:39'),
-(7, 6, 'sofia.mendoza@cafe.com', 'password123', 'Barista', '2026-05-27 05:33:39'),
-(8, 7, 'kevin.garcia@cafe.com', 'password123', 'Barista', '2026-05-27 05:33:39'),
-(9, 8, 'jason.bautista@cafe.com', 'password123', 'Barista', '2026-05-27 05:33:39'),
-(10, 9, 'mark.villanueva@cafe.com', 'password123', 'Service Crew', '2026-05-27 05:33:39'),
-(11, 10, 'john.torres@cafe.com', 'password123', 'Service Crew', '2026-05-27 05:33:39'),
-(12, 11, 'carlo.ramos@cafe.com', 'password123', 'Service Crew', '2026-05-27 05:33:39'),
-(13, 12, 'ryan.dizon@cafe.com', 'password123', 'Service Crew', '2026-05-27 05:33:39'),
-(14, 13, 'angelo.cruz@cafe.com', 'password123', 'Service Crew', '2026-05-27 05:33:39');
+(1, NULL, 'admin@cafe.com', '$2y$12$EL1VmJ1KNL1/tIQOw/2q3OdU2.xeSLWRbJMsQKJIQvr/qCecf0Ghy', 'admin', '2026-05-27 05:33:39'),
+(2, 1, 'miguel.santos@cafe.com', '$2y$12$laFhticO9BzFsy9xrsiJaOQlKhSPfpo/O5py69UQbsKwdokgi6mQC', 'Manager', '2026-05-27 05:33:39'),
+(3, 2, 'carla.reyes@cafe.com', '$2y$12$laFhticO9BzFsy9xrsiJaOQlKhSPfpo/O5py69UQbsKwdokgi6mQC', 'Assistant Manager', '2026-05-27 05:33:39'),
+(4, 3, 'ramon.delacruz@cafe.com', '$2y$12$laFhticO9BzFsy9xrsiJaOQlKhSPfpo/O5py69UQbsKwdokgi6mQC', 'Head Chef', '2026-05-27 05:33:39'),
+(5, 4, 'paolo.navarro@cafe.com', '$2y$12$laFhticO9BzFsy9xrsiJaOQlKhSPfpo/O5py69UQbsKwdokgi6mQC', 'Assistant Chef', '2026-05-27 05:33:39'),
+(6, 5, 'andrea.lim@cafe.com', '$2y$12$laFhticO9BzFsy9xrsiJaOQlKhSPfpo/O5py69UQbsKwdokgi6mQC', 'Head Barista', '2026-05-27 05:33:39'),
+(7, 6, 'sofia.mendoza@cafe.com', '$2y$12$laFhticO9BzFsy9xrsiJaOQlKhSPfpo/O5py69UQbsKwdokgi6mQC', 'Barista', '2026-05-27 05:33:39'),
+(8, 7, 'kevin.garcia@cafe.com', '$2y$12$laFhticO9BzFsy9xrsiJaOQlKhSPfpo/O5py69UQbsKwdokgi6mQC', 'Barista', '2026-05-27 05:33:39'),
+(9, 8, 'jason.bautista@cafe.com', '$2y$12$laFhticO9BzFsy9xrsiJaOQlKhSPfpo/O5py69UQbsKwdokgi6mQC', 'Barista', '2026-05-27 05:33:39'),
+(10, 9, 'mark.villanueva@cafe.com', '$2y$12$laFhticO9BzFsy9xrsiJaOQlKhSPfpo/O5py69UQbsKwdokgi6mQC', 'Service Crew', '2026-05-27 05:33:39'),
+(11, 10, 'john.torres@cafe.com', '$2y$12$laFhticO9BzFsy9xrsiJaOQlKhSPfpo/O5py69UQbsKwdokgi6mQC', 'Service Crew', '2026-05-27 05:33:39'),
+(12, 11, 'carlo.ramos@cafe.com', '$2y$12$laFhticO9BzFsy9xrsiJaOQlKhSPfpo/O5py69UQbsKwdokgi6mQC', 'Service Crew', '2026-05-27 05:33:39'),
+(13, 12, 'ryan.dizon@cafe.com', '$2y$12$laFhticO9BzFsy9xrsiJaOQlKhSPfpo/O5py69UQbsKwdokgi6mQC', 'Service Crew', '2026-05-27 05:33:39'),
+(14, 13, 'angelo.cruz@cafe.com', '$2y$12$laFhticO9BzFsy9xrsiJaOQlKhSPfpo/O5py69UQbsKwdokgi6mQC', 'Service Crew', '2026-05-27 05:33:39');
 
 --
 -- Indexes for dumped tables

@@ -1,24 +1,59 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Café Payroll Login</title>
-</head>
-<body>
+@extends('layouts.app')
 
-<h2>Login</h2>
+@section('title', 'Sign In - Cafe Payroll')
 
-@if(session('error'))
-    <p style="color:red">{{ session('error') }}</p>
-@endif
+@section('content')
+    <main class="login-page">
+        <section class="login-card" aria-labelledby="login-title">
+            <div class="login-header">
+                <div class="login-logo">CP</div>
+                <h1 id="login-title">Cafe Payroll</h1>
+                <p>Employee payroll management system</p>
+            </div>
 
-<form method="POST" action="{{ route('login') }}">
-    @csrf
+            @if(session('error'))
+                <div class="alert alert-danger">{{ session('error') }}</div>
+            @endif
 
-    <input type="email" name="email" placeholder="Email"><br><br>
-    <input type="password" name="password" placeholder="Password"><br><br>
+            <form method="POST" action="{{ route('login') }}" class="form-grid">
+                @csrf
 
-    <button type="submit">Login</button>
-</form>
+                <div class="form-row full">
+                    <label for="email">Email address</label>
+                    <input
+                        type="email"
+                        id="email"
+                        name="email"
+                        placeholder="admin@cafe.com"
+                        required
+                        autofocus
+                        value="{{ old('email') }}"
+                    >
+                    @error('email')
+                        <span class="error-alert">{{ $message }}</span>
+                    @enderror
+                </div>
 
-</body>
-</html>
+                <div class="form-row full">
+                    <label for="password">Password</label>
+                    <input
+                        type="password"
+                        id="password"
+                        name="password"
+                        placeholder="Enter your password"
+                        required
+                    >
+                    @error('password')
+                        <span class="error-alert">{{ $message }}</span>
+                    @enderror
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn">Sign in</button>
+                </div>
+            </form>
+
+            <p class="login-footer">Demo credentials available upon request</p>
+        </section>
+    </main>
+@endsection

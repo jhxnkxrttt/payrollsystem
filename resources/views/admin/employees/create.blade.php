@@ -1,54 +1,54 @@
-<h2>Add Employee</h2>
+@extends('layouts.app')
 
-<form method="POST" action="/admin/employees/store">
+@section('title', 'Add Employee - Cafe Payroll')
+@section('page-title', 'Add Employee')
 
-    @csrf
+@section('content')
+    <section class="panel">
+        <div class="section-header">
+            <div>
+                <h2>New Employee</h2>
+                <p>Create the employee profile and login account.</p>
+            </div>
+            <a href="{{ url('/admin/employees') }}" class="btn btn-secondary">Back</a>
+        </div>
 
-    <input type="text"
-           name="name"
-           placeholder="Employee Name"
-           required>
+        <form method="POST" action="{{ url('/admin/employees/store') }}" class="form-grid">
+            @csrf
 
-    <br><br>
+            <div class="form-row">
+                <label for="name">Employee name</label>
+                <input type="text" id="name" name="name" required>
+            </div>
 
-    <input type="email"
-           name="email"
-           placeholder="Email"
-           required>
+            <div class="form-row">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" required>
+            </div>
 
-    <br><br>
+            <div class="form-row">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required>
+            </div>
 
-    <input type="password"
-           name="password"
-           placeholder="Password"
-           required>
+            <div class="form-row">
+                <label for="position">Position</label>
+                <input type="text" id="position" name="position" required>
+            </div>
 
-    <br><br>
+            <div class="form-row">
+                <label for="monthly_salary">Monthly salary</label>
+                <input type="number" id="monthly_salary" name="monthly_salary" min="0" step="0.01" required>
+            </div>
 
-    <input type="text"
-           name="position"
-           placeholder="Position"
-           required>
+            <div class="form-row">
+                <label for="hire_date">Hire date</label>
+                <input type="date" id="hire_date" name="hire_date" required>
+            </div>
 
-    <br><br>
-
-    <input type="number"
-           name="monthly_salary"
-           placeholder="Salary"
-           required>
-
-    <br><br>
-
-    <input type="date"
-           name="hire_date"
-           required>
-
-    <br><br>
-
-    <button type="submit">
-
-        Save Employee
-
-    </button>
-
-</form>
+            <div class="form-actions">
+                <button type="submit">Save employee</button>
+            </div>
+        </form>
+    </section>
+@endsection

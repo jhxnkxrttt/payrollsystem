@@ -3,52 +3,56 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\User;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Session;
 
 class AuthController extends Controller
 {
     public function login(Request $request)
     {
-        $request->validate([
-            'email' => 'required|email',
-            'password' => 'required|string',
-        ]);
-
-        $user = User::where('email', $request->email)->first();
+        $user = DB::table('users')
+            ->where('email', $request->email)
+            ->first();
 
         if (!$user) {
-            return back()->with('error', 'Invalid credentials');
+            return back()->with('error', 'Invalid login');
         }
 
-        $passwordMatches = false;
+        $passwordIsBcrypt = preg_match('/^\$2[ayb]\$.{56}$/', $user->password);
+        $validPassword = false;
 
-        if ($user->password === $request->password) {
-            $passwordMatches = true;
-            $user->update(['password' => Hash::make($request->password)]);
-        } elseif (str_starts_with($user->password, '$2y$') || str_starts_with($user->password, '$2a$') || str_starts_with($user->password, '$2b$')) {
-            if (Hash::check($request->password, $user->password)) {
-                $passwordMatches = true;
-            }
+        if ($passwordIsBcrypt) {
+            $validPassword = Hash::check($request->password, $user->password);
+        } else {
+            $validPassword = hash_equals($user->password, $request->password);
         }
 
-        if (!$passwordMatches) {
-            return back()->with('error', 'Invalid credentials');
+        if (!$validPassword) {
+            return back()->with('error', 'Invalid login');
+        }
+
+        if (!$passwordIsBcrypt) {
+            DB::table('users')
+                ->where('id', $user->id)
+                ->update(['password' => Hash::make($request->password)]);
         }
 
         session([
             'user_id' => $user->id,
-            'role' => $user->role,
+            'role' => $user->role
         ]);
 
-        return $user->role === 'admin'
-            ? redirect('/admin/dashboard')
-            : redirect('/employee/dashboard');
+        if ($user->role == 'admin') {
+            return redirect('/admin/dashboard');
+        }
+
+        return redirect('/employee/dashboard');
     }
 
     public function logout()
     {
-        session()->flush();
+        Session::flush();
         return redirect('/');
     }
 }

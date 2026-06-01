@@ -1,173 +1,118 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@yield('title') - Café Payroll</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            background: #f5f5f5;
-            color: #333;
-        }
-        .navbar {
-            background: #2c3e50;
-            color: white;
-            padding: 1rem 2rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        .navbar h1 {
-            font-size: 1.5rem;
-        }
-        .nav-links {
-            display: flex;
-            gap: 2rem;
-            list-style: none;
-        }
-        .nav-links a {
-            color: white;
-            text-decoration: none;
-            padding: 0.5rem 1rem;
-            border-radius: 4px;
-            transition: background 0.2s;
-        }
-        .nav-links a:hover {
-            background: rgba(255,255,255,0.1);
-        }
-        .nav-links a.active {
-            background: #3498db;
-        }
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 2rem;
-        }
-        .alert {
-            padding: 1rem;
-            border-radius: 4px;
-            margin-bottom: 1rem;
-        }
-        .alert-success {
-            background: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-        .alert-error {
-            background: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-        .card {
-            background: white;
-            border-radius: 4px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
-        }
-        .btn {
-            padding: 0.5rem 1rem;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            text-decoration: none;
-            display: inline-block;
-            transition: background 0.2s;
-            font-size: 0.95rem;
-        }
-        .btn-primary {
-            background: #3498db;
-            color: white;
-        }
-        .btn-primary:hover {
-            background: #2980b9;
-        }
-        .btn-success {
-            background: #27ae60;
-            color: white;
-        }
-        .btn-success:hover {
-            background: #229954;
-        }
-        .btn-danger {
-            background: #e74c3c;
-            color: white;
-        }
-        .btn-danger:hover {
-            background: #c0392b;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            background: white;
-        }
-        table th {
-            background: #ecf0f1;
-            padding: 1rem;
-            text-align: left;
-            font-weight: 600;
-            border-bottom: 2px solid #bdc3c7;
-        }
-        table td {
-            padding: 1rem;
-            border-bottom: 1px solid #ecf0f1;
-        }
-        table tr:hover {
-            background: #f9f9f9;
-        }
-        .form-group {
-            margin-bottom: 1rem;
-        }
-        label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 500;
-        }
-        input, select, textarea {
-            width: 100%;
-            padding: 0.75rem;
-            border: 1px solid #bdc3c7;
-            border-radius: 4px;
-            font-size: 0.95rem;
-        }
-        input:focus, select:focus, textarea:focus {
-            outline: none;
-            border-color: #3498db;
-            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
-        }
-        .footer {
-            background: #2c3e50;
-            color: white;
-            padding: 2rem;
-            text-align: center;
-            margin-top: 2rem;
-        }
-    </style>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>@yield('title', 'Cafe Payroll System')</title>
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @yield('styles')
 </head>
 <body>
-    <x-navbar />
-    <div class="container">
-        @if(session('success'))
-            <div class="alert alert-success">
-                {{ session('success') }}
-            </div>
-        @endif
-        @if(session('error'))
-            <div class="alert alert-error">
-                {{ session('error') }}
-            </div>
-        @endif
+    @php
+        $role = session('role');
+        $isAdmin = $role === 'admin';
+        $isLoggedIn = session()->has('user_id');
+        $dashboardUrl = $isAdmin ? url('/admin/dashboard') : url('/employee/dashboard');
+        $pageEyebrow = $isAdmin ? 'Admin Workspace' : 'Employee Portal';
+    @endphp
+
+    @if($isLoggedIn)
+        <div class="app-shell">
+            <aside class="sidebar">
+                <a class="sidebar-brand" href="{{ $dashboardUrl }}" aria-label="Cafe Payroll dashboard">
+                    <span class="brand-mark">CP</span>
+                    <span>
+                        <strong>Cafe Payroll</strong>
+                        <small>{{ $isAdmin ? 'Operations' : 'Staff' }}</small>
+                    </span>
+                </a>
+
+                <nav class="sidebar-nav" aria-label="Main navigation">
+                    <a href="{{ $dashboardUrl }}" class="sidebar-item {{ request()->is('admin/dashboard') || request()->is('employee/dashboard') ? 'active' : '' }}">
+                        <span class="nav-icon">DB</span>
+                        Dashboard
+                    </a>
+
+                    @if($isAdmin)
+                        <a href="{{ url('/admin/employees') }}" class="sidebar-item {{ request()->is('admin/employees*') ? 'active' : '' }}">
+                            <span class="nav-icon">EM</span>
+                            Employees
+                        </a>
+                        <a href="{{ url('/admin/payroll') }}" class="sidebar-item {{ request()->is('admin/payroll*') ? 'active' : '' }}">
+                            <span class="nav-icon">PR</span>
+                            Payroll
+                        </a>
+                        <a href="{{ url('/admin/attendance') }}" class="sidebar-item {{ request()->is('admin/attendance*') ? 'active' : '' }}">
+                            <span class="nav-icon">AT</span>
+                            Attendance
+                        </a>
+                        <a href="{{ url('/admin/deductions') }}" class="sidebar-item {{ request()->is('admin/deductions*') ? 'active' : '' }}">
+                            <span class="nav-icon">DD</span>
+                            Deductions
+                        </a>
+                        <a href="{{ url('/admin/reports') }}" class="sidebar-item {{ request()->is('admin/reports*') ? 'active' : '' }}">
+                            <span class="nav-icon">RP</span>
+                            Reports
+                        </a>
+                    @else
+                        <a href="{{ url('/employee/profile') }}" class="sidebar-item {{ request()->is('employee/profile') ? 'active' : '' }}">
+                            <span class="nav-icon">PF</span>
+                            Profile
+                        </a>
+                        <a href="{{ url('/employee/payslips') }}" class="sidebar-item {{ request()->is('employee/payslips') ? 'active' : '' }}">
+                            <span class="nav-icon">PS</span>
+                            Payslips
+                        </a>
+                        <a href="{{ url('/employee/attendance') }}" class="sidebar-item {{ request()->is('employee/attendance') ? 'active' : '' }}">
+                            <span class="nav-icon">AT</span>
+                            Attendance
+                        </a>
+                    @endif
+                </nav>
+
+                <a class="sidebar-item sidebar-logout" href="{{ url('/logout') }}">
+                    <span class="nav-icon">LO</span>
+                    Logout
+                </a>
+            </aside>
+
+            <main class="main-content">
+                <header class="topbar">
+                    <div>
+                        <span class="eyebrow">{{ $pageEyebrow }}</span>
+                        <h1>@yield('page-title', 'Dashboard')</h1>
+                    </div>
+                    <div class="user-chip">
+                        <span>{{ ucfirst($role ?? 'user') }}</span>
+                        <span class="avatar">{{ strtoupper(substr($role ?? 'U', 0, 1)) }}</span>
+                    </div>
+                </header>
+
+                @if ($errors->any())
+                    <div class="alert alert-danger">
+                        <strong>Please review the following:</strong>
+                        <ul>
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
+
+                @if (session('success'))
+                    <div class="alert alert-success">{{ session('success') }}</div>
+                @endif
+
+                <section class="page-content">
+                    @yield('content')
+                </section>
+            </main>
+        </div>
+    @else
         @yield('content')
-    </div>
-    <div class="footer">
-        <p>&copy; 2026 Café Payroll Management System. All rights reserved.</p>
-    </div>
+    @endif
+
+    @yield('scripts')
 </body>
 </html>

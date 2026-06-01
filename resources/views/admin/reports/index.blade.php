@@ -1,34 +1,53 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Reports</title>
-</head>
-<body>
+@extends('layouts.app')
 
-<h1>📊 System Reports</h1>
+@section('title', 'Reports - Cafe Payroll')
+@section('page-title', 'System Reports')
 
-<hr>
-
-<h3>👥 Employees</h3>
-<p>Total Employees: {{ $totalEmployees }}</p>
-
-<hr>
-
-<h3>💰 Payroll Summary</h3>
-<p>Total Gross Payroll: ₱{{ $totalPayroll }}</p>
-<p>Total Net Pay: ₱{{ $totalNetPay }}</p>
-<p>Total Deductions: ₱{{ $totalDeductions }}</p>
-
-<hr>
-
-<h3>⏱ Attendance Summary</h3>
-<p>Present: {{ $present }}</p>
-<p>Late: {{ $late }}</p>
-<p>Absent: {{ $absent }}</p>
-
-<hr>
-
-<a href="/admin/dashboard">Back</a>
-
-</body>
-</html>
+@section('content')
+    <section class="report-grid">
+        <article class="panel metric-card">
+            <span class="metric-label">Employees</span>
+            <strong class="metric-value">{{ $totalEmployees }}</strong>
+        </article>
+        <article class="panel metric-card">
+            <span class="metric-label">Gross payroll</span>
+            <strong class="metric-value">PHP {{ number_format($totalPayroll, 2) }}</strong>
+        </article>
+        <article class="panel metric-card">
+            <span class="metric-label">Net pay</span>
+            <strong class="metric-value">PHP {{ number_format($totalNetPay, 2) }}</strong>
+        </article>
+        <article class="panel metric-card">
+            <span class="metric-label">Total deductions</span>
+            <strong class="metric-value">PHP {{ number_format($totalDeductions, 2) }}</strong>
+        </article>
+        <article class="panel metric-card">
+            <span class="metric-label">Payroll runs</span>
+            <strong class="metric-value">{{ $payrollRuns }}</strong>
+        </article>
+        <article class="panel metric-card">
+            <span class="metric-label">Payroll present days</span>
+            <strong class="metric-value">{{ $payrollPresentDays }}</strong>
+        </article>
+        <article class="panel metric-card">
+            <span class="metric-label">Payroll absent days</span>
+            <strong class="metric-value">{{ $payrollAbsentDays }}</strong>
+        </article>
+        <article class="panel metric-card">
+            <span class="metric-label">Payroll late count</span>
+            <strong class="metric-value">{{ $payrollLateDays }}</strong>
+        </article>
+        <article class="panel metric-card">
+            <span class="metric-label">Late deductions</span>
+            <strong class="metric-value">PHP {{ number_format($payrollLateDeductions, 2) }}</strong>
+        </article>
+        <article class="panel metric-card">
+            <span class="metric-label">Present</span>
+            <strong class="metric-value">{{ $present }}</strong>
+        </article>
+        <article class="panel metric-card">
+            <span class="metric-label">Late / Absent</span>
+            <strong class="metric-value">{{ $late }} / {{ $absent }}</strong>
+        </article>
+    </section>
+@endsection

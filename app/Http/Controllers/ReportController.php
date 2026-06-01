@@ -2,28 +2,40 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Employee;
-use App\Models\Payroll;
-use App\Models\Attendance;
+use Illuminate\Support\Facades\DB;
 
 class ReportController extends Controller
 {
     public function index()
     {
-        $totalEmployees = Employee::count();
-        $totalPayroll = Payroll::sum('gross_pay');
-        $totalNetPay = Payroll::sum('net_pay');
-        $totalDeductions = Payroll::sum('total_deductions');
+        // EMPLOYEES
+        $totalEmployees = DB::table('employees')->count();
 
-        $present = Attendance::where('status', 'present')->count();
-        $late = Attendance::where('status', 'late')->count();
-        $absent = Attendance::where('status', 'absent')->count();
+        // PAYROLL TOTALS
+        $totalPayroll = DB::table('payroll')->sum('gross_pay');
+        $totalNetPay = DB::table('payroll')->sum('net_pay');
+        $totalDeductions = DB::table('payroll')->sum('total_deductions');
+        $payrollRuns = DB::table('payroll')->count();
+        $payrollPresentDays = DB::table('payroll')->sum('present_days');
+        $payrollAbsentDays = DB::table('payroll')->sum('absent_days');
+        $payrollLateDays = DB::table('payroll')->sum('late_days');
+        $payrollLateDeductions = DB::table('payroll')->sum('late_deduction');
+
+        // ATTENDANCE SUMMARY
+        $present = DB::table('attendance')->where('status', 'present')->count();
+        $late = DB::table('attendance')->where('status', 'late')->count();
+        $absent = DB::table('attendance')->where('status', 'absent')->count();
 
         return view('admin.reports.index', compact(
             'totalEmployees',
             'totalPayroll',
             'totalNetPay',
             'totalDeductions',
+            'payrollRuns',
+            'payrollPresentDays',
+            'payrollAbsentDays',
+            'payrollLateDays',
+            'payrollLateDeductions',
             'present',
             'late',
             'absent'
