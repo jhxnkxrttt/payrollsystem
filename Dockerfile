@@ -1,9 +1,8 @@
 FROM composer:2 AS vendor
 
 WORKDIR /app
-COPY composer.json composer.lock ./
-RUN composer install --prefer-dist --no-dev --no-interaction --optimize-autoloader
 COPY . .
+RUN composer install --prefer-dist --no-dev --no-interaction --optimize-autoloader
 
 FROM node:20-bullseye AS assets
 
@@ -37,3 +36,4 @@ RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cac
 EXPOSE 80
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 CMD ["apache2-foreground"]
+
