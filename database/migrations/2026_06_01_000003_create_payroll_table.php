@@ -1,0 +1,33 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    public function up(): void
+    {
+        Schema::create('payroll', function (Blueprint $table) {
+            $table->id();
+            $table->unsignedBigInteger('employee_id');
+            $table->date('cut_off_start')->nullable();
+            $table->date('cut_off_end')->nullable();
+            $table->date('paid_date')->nullable();
+            $table->unsignedTinyInteger('present_days')->default(0);
+            $table->unsignedTinyInteger('absent_days')->default(0);
+            $table->unsignedTinyInteger('late_days')->default(0);
+            $table->decimal('gross_pay', 10, 2)->default(0);
+            $table->decimal('late_deduction', 10, 2)->default(0);
+            $table->text('selected_deductions')->nullable();
+            $table->timestamps();
+            $table->foreign('employee_id')->references('id')->on('users')->onDelete('cascade');
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::dropIfExists('payroll');
+    }
+};
+
