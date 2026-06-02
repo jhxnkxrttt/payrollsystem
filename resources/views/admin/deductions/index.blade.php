@@ -31,7 +31,6 @@
                     <option value="SSS">SSS</option>
                     <option value="Pag-IBIG">Pag-IBIG</option>
                     <option value="PhilHealth">PhilHealth</option>
-                    <option value="Late">Late</option>
                     <option value="Other">Other</option>
                 </select>
             </div>
