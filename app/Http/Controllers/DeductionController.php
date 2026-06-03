@@ -43,10 +43,6 @@ class DeductionController extends Controller
         $amount = 200;
     }
 
-    if ($request->type == 'Late') {
-        $amount = 200; 
-    }
-
     if ($request->type == 'Other') {
         $amount = $request->amount;
     }

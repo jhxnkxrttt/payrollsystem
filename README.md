@@ -1,125 +1,132 @@
-# Cafe Payroll System
+# ☕ Cafe Payroll Management System
 
-Laravel payroll and attendance system configured for Railway deployment with MySQL.
+A web-based Payroll Management System built with Laravel 12 and MySQL that automates employee payroll computation, attendance tracking, deductions, and reporting.
 
-## Railway Files Added
+---
 
-- `railway.json` tells Railway to build the Vite assets, run migrations/seeders before deploy, cache Laravel config/routes/views, and start the app on Railway's `$PORT`.
-- `.env.example` contains production-ready Railway variables.
-- Laravel migrations now create the same tables used by the app: `employees`, `users`, `attendance`, `deductions`, `payroll`, `sessions`, `cache`, and `jobs`.
-- `DatabaseSeeder` creates demo employees and login accounts without duplicating data on redeploy.
+## 📌 Project Description
 
-## Demo Logins
+The Cafe Payroll Management System is designed to automate payroll processing for café businesses. It eliminates manual computation errors and improves efficiency in handling employee records, attendance, deductions, and payroll generation.
 
-Admin:
+---
 
-```text
-Email: admin@cafe.com
-Password: admin123
-```
+## 👨‍💻 Developers
 
-Employee:
+- Agaton, Jhon Kurt V. 
+- Esguerra, Diana
+- Cordero Kerby
 
-```text
-Email: miguel.santos@cafe.com
-Password: password
-```
+---
 
-All seeded employee accounts use `password`.
+## ⚙️ System Features
 
-## Deploy To Railway
+### Employee Module
+- View profile
+- View attendance
+- View payslip
 
-1. Push this project to GitHub.
+### Admin Module
+- Manage employees
+- Manage attendance
+- Manage deductions
+- Generate payroll
+- Export reports
 
-2. Open Railway and create a new project.
+---
 
-3. Add a MySQL database:
-   - Click `New`.
-   - Choose `Database`.
-   - Choose `MySQL`.
+## 💰 Payroll Computation
 
-4. Add your Laravel app service:
-   - Click `New`.
-   - Choose `GitHub Repo`.
-   - Select this repository.
+Gross Pay:
+Gross Pay = Daily Rate × Present Days
 
-5. Open the Laravel app service, then go to `Variables`.
+Late Deduction:
+Late Deduction = Late Days × (Daily Rate × 0.20)
 
-6. Add these variables in the Raw Editor:
+Net Pay:
+Net Pay = Gross Pay - Total Deductions
 
-```env
-APP_NAME="Cafe Payroll"
-APP_ENV=production
-APP_KEY=base64:PASTE_YOUR_GENERATED_APP_KEY_HERE
-APP_DEBUG=false
-APP_URL=https://your-railway-domain.up.railway.app
+---
 
-LOG_CHANNEL=stderr
-LOG_LEVEL=error
-LOG_STDERR_FORMATTER=Monolog\Formatter\JsonFormatter
+## 🗄 Database Tables
 
-DB_CONNECTION=mysql
-DB_HOST=${{MySQL.MYSQLHOST}}
-DB_PORT=${{MySQL.MYSQLPORT}}
-DB_DATABASE=${{MySQL.MYSQLDATABASE}}
-DB_USERNAME=${{MySQL.MYSQLUSER}}
-DB_PASSWORD=${{MySQL.MYSQLPASSWORD}}
+- users
+- employees
+- attendance
+- deductions
+- payroll
 
-SESSION_DRIVER=database
-CACHE_STORE=database
-QUEUE_CONNECTION=sync
+---
 
-BROADCAST_CONNECTION=log
-FILESYSTEM_DISK=local
-MAIL_MAILER=log
-VITE_APP_NAME="${APP_NAME}"
-```
+## 🛠 Tech Stack
 
-7. Generate your `APP_KEY` locally:
+- Laravel 12
+- PHP 8+
+- MySQL
+- Blade Templates
 
-```bash
-php artisan key:generate --show
-```
+---
 
-Copy the printed key into Railway as `APP_KEY`.
+## 🚀 Installation
 
-8. Deploy the app service.
+### Clone Project
+git clone https://github.com/your-repo/cafe-payroll.git
+cd cafe-payroll
 
-Railway will run:
+---
 
-```bash
-npm run build
-php artisan migrate --force
-php artisan db:seed --force
-php artisan optimize:clear
-php artisan config:cache
-php artisan route:cache
-php artisan view:cache
-php artisan serve --host=0.0.0.0 --port=${PORT}
-```
-
-9. Generate a public domain:
-   - Open the Laravel app service.
-   - Go to `Settings`.
-   - Open `Networking`.
-   - Click `Generate Domain`.
-
-10. Copy the generated domain and update `APP_URL` in the Railway app service variables.
-
-11. Redeploy after changing `APP_URL`.
-
-12. Open the Railway domain and log in with the demo admin account.
-
-## Local Setup
-
-```bash
+### Install Dependencies
 composer install
 npm install
+
+---
+
+### Setup Environment
 cp .env.example .env
 php artisan key:generate
-php artisan migrate --seed
-npm run build
-php artisan serve
-```
 
-For local MySQL, replace the Railway `DB_*` values in `.env` with your local database credentials.
+---
+
+### Setup Database
+DB_DATABASE=cafe_payroll
+DB_USERNAME=root
+DB_PASSWORD=
+
+---
+
+### Run Migration + Seeder
+php artisan migrate:fresh --seed
+
+---
+
+### Run Server
+php artisan serve
+
+---
+
+## 📤 Export Features
+
+- PDF Export
+
+---
+
+## 🌐 Deployment
+
+Link:
+https://your-cafe-payroll-system.com
+
+Platform:
+- Railway
+
+---
+
+## 🔐 Default Login
+
+Admin:
+admin@cafe.com
+password
+
+---
+
+## 📌 License
+
+For educational purposes only.
