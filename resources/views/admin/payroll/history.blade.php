@@ -24,6 +24,7 @@
                         <th>Deductions</th>
                         <th>Net pay</th>
                         <th>Date generated</th>
+                        <th>Action</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -57,10 +58,15 @@
                             </td>
                             <td><strong>PHP {{ number_format($pay->net_pay, 2) }}</strong></td>
                             <td>{{ $pay->generated_at }}</td>
+                            <td>
+                                <a href="{{ route('payslip.download', $pay->id) }}" class="btn btn-secondary">
+                                    Download PDF
+                                </a>
+                            </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="7" class="empty-state">No payroll has been generated yet.</td>
+                            <td colspan="8" class="empty-state">No payroll has been generated yet.</td>
                         </tr>
                     @endforelse
                 </tbody>

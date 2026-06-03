@@ -51,10 +51,13 @@
                         <dt>Net pay</dt>
                         <dd><strong>PHP {{ number_format($p->net_pay, 2) }}</strong></dd>
                     </div>
-                    <a href="{{ route('payslip.download', $p->id) }}" class="btn btn-primary">
-                    Download PDF
-                    </a>
                 </dl>
+
+                <div class="inline-actions">
+                    <a href="{{ route('payslip.download', $p->id) }}" class="btn btn-primary">
+                        Download PDF
+                    </a>
+                </div>
             </article>
         @empty
             <section class="panel empty-state">
