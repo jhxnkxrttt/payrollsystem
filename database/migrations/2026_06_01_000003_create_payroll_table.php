@@ -17,11 +17,14 @@ return new class extends Migration
             $table->unsignedTinyInteger('present_days')->default(0);
             $table->unsignedTinyInteger('absent_days')->default(0);
             $table->unsignedTinyInteger('late_days')->default(0);
+            $table->integer('total_days')->default(0);
             $table->decimal('gross_pay', 10, 2)->default(0);
             $table->decimal('late_deduction', 10, 2)->default(0);
             $table->text('selected_deductions')->nullable();
-            $table->timestamps();
-            $table->foreign('employee_id')->references('id')->on('users')->onDelete('cascade');
+            $table->decimal('total_deductions', 10, 2)->default(0);
+            $table->decimal('net_pay', 10, 2)->default(0);
+            $table->timestamp('generated_at')->useCurrent();
+            $table->foreign('employee_id')->references('id')->on('employees')->onDelete('cascade');
         });
     }
 
@@ -30,4 +33,3 @@ return new class extends Migration
         Schema::dropIfExists('payroll');
     }
 };
-
