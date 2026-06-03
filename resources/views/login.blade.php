@@ -15,7 +15,7 @@
                 <div class="alert alert-danger">{{ session('error') }}</div>
             @endif
 
-            <form method="POST" action="{{ secure_url('/login') }}" class="form-grid">
+             <form method="POST" action="{{ secure_url('/login') }}" class="form-grid">
                 @csrf
 
                 <div class="form-row full">
