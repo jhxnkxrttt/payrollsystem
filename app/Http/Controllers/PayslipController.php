@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\DB;
-use PDF;
 
 class PayslipController extends Controller
 {
@@ -21,9 +21,13 @@ class PayslipController extends Controller
             ->where('id', $payslip->employee_id)
             ->first();
 
+        if (!$employee) {
+            return back()->withErrors(['error' => 'Employee not found for this payslip.']);
+        }
+
         $selectedDeductions = json_decode($payslip->selected_deductions ?? '[]', true);
 
-        $pdf = PDF::loadView('pdf.payslip', [
+        $pdf = Pdf::loadView('pdf.payslip', [
             'payslip' => $payslip,
             'employee' => $employee,
             'selectedDeductions' => $selectedDeductions,
