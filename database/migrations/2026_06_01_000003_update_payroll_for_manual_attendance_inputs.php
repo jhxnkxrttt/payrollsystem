@@ -11,11 +11,15 @@ return new class extends Migration
         Schema::table('payroll', function (Blueprint $table) {
             $table->date('cut_off_start')->nullable()->change();
             $table->date('cut_off_end')->nullable()->change();
+
             $table->date('paid_date')->nullable()->after('employee_id');
+
             $table->unsignedTinyInteger('present_days')->default(0)->after('cut_off_end');
             $table->unsignedTinyInteger('absent_days')->default(0)->after('present_days');
             $table->unsignedTinyInteger('late_days')->default(0)->after('absent_days');
+
             $table->decimal('late_deduction', 10, 2)->default(0)->after('gross_pay');
+
             $table->text('selected_deductions')->nullable()->after('late_deduction');
         });
     }
