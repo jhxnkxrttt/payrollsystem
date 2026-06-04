@@ -4,6 +4,18 @@
 @section('page-title', 'System Reports')
 
 @section('content')
+    <section class="panel">
+        <div class="section-header">
+            <div>
+                <h2>Reports Summary</h2>
+                <p>Export the latest payroll and attendance totals as a PDF.</p>
+            </div>
+            <a href="{{ route('reports.download') }}" class="btn">
+                Download PDF
+            </a>
+        </div>
+    </section>
+
     <section class="report-grid">
         <article class="panel metric-card">
             <span class="metric-label">Employees</span>

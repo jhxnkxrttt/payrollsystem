@@ -2,43 +2,40 @@
 
 namespace App\Http\Controllers;
 
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\DB;
 
 class ReportController extends Controller
 {
     public function index()
     {
-        // EMPLOYEES
-        $totalEmployees = DB::table('employees')->count();
+        return view('admin.reports.index', $this->summaryData());
+    }
 
-        // PAYROLL TOTALS
-        $totalPayroll = DB::table('payroll')->sum('gross_pay');
-        $totalNetPay = DB::table('payroll')->sum('net_pay');
-        $totalDeductions = DB::table('payroll')->sum('total_deductions');
-        $payrollRuns = DB::table('payroll')->count();
-        $payrollPresentDays = DB::table('payroll')->sum('present_days');
-        $payrollAbsentDays = DB::table('payroll')->sum('absent_days');
-        $payrollLateDays = DB::table('payroll')->sum('late_days');
-        $payrollLateDeductions = DB::table('payroll')->sum('late_deduction');
+    public function download()
+    {
+        $pdf = Pdf::loadView('pdf.reports', $this->summaryData())
+            ->setPaper('a4', 'portrait');
 
-        // ATTENDANCE SUMMARY
-        $present = DB::table('attendance')->where('status', 'present')->count();
-        $late = DB::table('attendance')->where('status', 'late')->count();
-        $absent = DB::table('attendance')->where('status', 'absent')->count();
+        return $pdf->download('cafe-payroll-report.pdf');
+    }
 
-        return view('admin.reports.index', compact(
-            'totalEmployees',
-            'totalPayroll',
-            'totalNetPay',
-            'totalDeductions',
-            'payrollRuns',
-            'payrollPresentDays',
-            'payrollAbsentDays',
-            'payrollLateDays',
-            'payrollLateDeductions',
-            'present',
-            'late',
-            'absent'
-        ));
+    private function summaryData(): array
+    {
+        return [
+            'totalEmployees' => DB::table('employees')->count(),
+            'totalPayroll' => DB::table('payroll')->sum('gross_pay'),
+            'totalNetPay' => DB::table('payroll')->sum('net_pay'),
+            'totalDeductions' => DB::table('payroll')->sum('total_deductions'),
+            'payrollRuns' => DB::table('payroll')->count(),
+            'payrollPresentDays' => DB::table('payroll')->sum('present_days'),
+            'payrollAbsentDays' => DB::table('payroll')->sum('absent_days'),
+            'payrollLateDays' => DB::table('payroll')->sum('late_days'),
+            'payrollLateDeductions' => DB::table('payroll')->sum('late_deduction'),
+            'present' => DB::table('attendance')->where('status', 'present')->count(),
+            'late' => DB::table('attendance')->where('status', 'late')->count(),
+            'absent' => DB::table('attendance')->where('status', 'absent')->count(),
+            'generatedAt' => now(),
+        ];
     }
 }

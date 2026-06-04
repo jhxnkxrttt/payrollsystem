@@ -52,6 +52,8 @@ Route::post('/admin/deductions/store', [DeductionController::class, 'store']);
 use App\Http\Controllers\ReportController;
 
 Route::get('/admin/reports', [ReportController::class, 'index']);
+Route::get('/admin/reports/download', [ReportController::class, 'download'])
+    ->name('reports.download');
 
 use App\Http\Controllers\PayslipController;
 
